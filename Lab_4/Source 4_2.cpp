@@ -8,7 +8,7 @@ int main(int argc, char* argv[])
 	if (argc == 2)
 	{
 		int countThreads = atoi(argv[1]); // преобразовать строковый аргумент в int 
-		if (countThreads > 0 && countThreads <= MAX_COUNT_THREADS) 
+		if (countThreads > 0 && countThreads <= MAX_COUNT_THREADS)
 		{
 			// создать массив 
 			// генерируем числа в каждом массиве
@@ -47,25 +47,25 @@ int main(int argc, char* argv[])
 
 DWORD WINAPI StartNewThread(LPVOID param)
 {
-	EnterCriticalSection(&gCriticalSection); 
-	int maxDivisors[ARRAY_SIZE] = { 1 }; 
-	TlsSetValue(gdwTlsIndex, maxDivisors); 
+	EnterCriticalSection(&gCriticalSection);
+	int maxDivisors[ARRAY_SIZE] = { 1 };
+	TlsSetValue(gdwTlsIndex, maxDivisors);
 
 	cout << "---------------------------------------------\n";
 	cout << "Thread ID:" << GetCurrentThreadId() << endl;
 	cout << "Generated array:";
 	PrintArrayToStdout((int*)param, ARRAY_SIZE);
 	cout << endl;
-	for (int i = 0; i < ARRAY_SIZE; i++) 
+	for (int i = 0; i < ARRAY_SIZE; i++)
 	{
 		maxDivisors[i] = CalcLargestDivisor(((int*)param)[i]);
 	}
 	cout << "Max divisors:   ";
-	PrintArrayToStdout((int*)TlsGetValue(gdwTlsIndex), ARRAY_SIZE); 
+	PrintArrayToStdout((int*)TlsGetValue(gdwTlsIndex), ARRAY_SIZE);
 	cout << endl;
 	cout << "Numbers sum:" << ArrNumsSum((int*)param) << endl;
 	cout << "---------------------------------------------\n";
-	LeaveCriticalSection(&gCriticalSection); 
+	LeaveCriticalSection(&gCriticalSection);
 	return 0;
 }
 
