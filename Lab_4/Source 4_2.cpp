@@ -7,11 +7,11 @@ int main(int argc, char* argv[])
 {
 	if (argc == 2)
 	{
-		int countThreads = atoi(argv[1]); // convert string argument to int 
-		if (countThreads > 0 && countThreads <= MAX_COUNT_THREADS)
+		int countThreads = atoi(argv[1]); // преобразовать строковый аргумент в int 
+		if (countThreads > 0 && countThreads <= MAX_COUNT_THREADS) 
 		{
-			// create array for containing array for each new thread and 
-			// generate numbers in each arrays
+			// создать массив 
+			// генерируем числа в каждом массиве
 			int** arrOfArraysForNewThread;
 			arrOfArraysForNewThread = (int**)malloc(sizeof(int**) * countThreads);
 
@@ -22,14 +22,11 @@ int main(int argc, char* argv[])
 			}
 
 			InitializeCriticalSection(&gCriticalSection);
-			// alloc index in tls memory
 			gdwTlsIndex = TlsAlloc();
-			// alloc memory for new threads handles 
 			threadHandles = (HANDLE*)malloc(sizeof(HANDLE) * countThreads);
-			// alloc memory for ID of new threads
 			DWORD* dwThreadsID = (DWORD*)malloc(sizeof(DWORD) * countThreads);
 
-			for (int i = 0; i < countThreads; i++) // create new threads
+			for (int i = 0; i < countThreads; i++) // создаем новые потоки
 			{
 				threadHandles[i] = CreateThread(NULL,
 					NULL,
@@ -38,7 +35,6 @@ int main(int argc, char* argv[])
 					NULL,
 					&dwThreadsID[i]);
 			}
-			// wait until all threads complete
 			WaitForMultipleObjects(countThreads, threadHandles, TRUE, INFINITE);
 
 		}
@@ -51,47 +47,44 @@ int main(int argc, char* argv[])
 
 DWORD WINAPI StartNewThread(LPVOID param)
 {
-	EnterCriticalSection(&gCriticalSection); // only 1 thread in one moment can execute this code
-	int maxDivisors[ARRAY_SIZE] = { 1 }; // create memory for array of max divisors
-	TlsSetValue(gdwTlsIndex, maxDivisors); // save pointer to array in tls memory
+	EnterCriticalSection(&gCriticalSection); 
+	int maxDivisors[ARRAY_SIZE] = { 1 }; 
+	TlsSetValue(gdwTlsIndex, maxDivisors); 
 
 	cout << "---------------------------------------------\n";
 	cout << "Thread ID:" << GetCurrentThreadId() << endl;
 	cout << "Generated array:";
 	PrintArrayToStdout((int*)param, ARRAY_SIZE);
 	cout << endl;
-	for (int i = 0; i < ARRAY_SIZE; i++) // calculate largest divisor for each number
+	for (int i = 0; i < ARRAY_SIZE; i++) 
 	{
 		maxDivisors[i] = CalcLargestDivisor(((int*)param)[i]);
 	}
 	cout << "Max divisors:   ";
-	PrintArrayToStdout((int*)TlsGetValue(gdwTlsIndex), ARRAY_SIZE); // print array of  largest divisors from TLS memory
+	PrintArrayToStdout((int*)TlsGetValue(gdwTlsIndex), ARRAY_SIZE); 
 	cout << endl;
 	cout << "Numbers sum:" << ArrNumsSum((int*)param) << endl;
 	cout << "---------------------------------------------\n";
-	LeaveCriticalSection(&gCriticalSection); // allow other threads to execute this code
+	LeaveCriticalSection(&gCriticalSection); 
 	return 0;
 }
 
-// Print array to stdout
 void PrintArrayToStdout(int* array, int lenght)
 {
 	for (int i = 0; i < lenght; i++)
 		cout << " " << array[i] << " ";
 }
 
-// generate array in setted range
 void GenereteArrayNums(int* arr)
 {
 	int randRange = ARRAY_NUM_MAX_BOUNDARY - ARRAY_NUM_MIN_BOUNDARY;
-	// array generation
+	// генерация массива
 	for (int i = 0; i < ARRAY_SIZE; i++)
 	{
 		arr[i] = (rand() % randRange) + ARRAY_NUM_MIN_BOUNDARY;
 	}
 }
 
-// calc largest divisor
 int CalcLargestDivisor(int num)
 {
 	int halfNum = ceil(num / 2), res = 1;
@@ -105,7 +98,7 @@ int CalcLargestDivisor(int num)
 	return res;
 }
 
-// calc array nums sum
+// сумма массивов
 int ArrNumsSum(int* arr)
 {
 	int sum = arr[0];
